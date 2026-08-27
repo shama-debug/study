@@ -13,7 +13,7 @@ WebフレームワークにGin、ORMにGORMを採用し、PostgreSQLと連携し
 
 ## ディレクトリ構成
 
-\`\`\`text
+```
 01_go/
 ├── main.go                # アプリケーションのエントリーポイント・ルーティング設定
 ├── go.mod                 # パッケージ管理ファイル
@@ -25,6 +25,7 @@ WebフレームワークにGin、ORMにGORMを採用し、PostgreSQLと連携し
 │   └── todo.go            # Todoのデータ構造（GORMモデル）
 └── controllers/
     └── todo_controller.go # 各APIエンドポイントのビジネスロジック (CRUD処理)
+```
 
 ##  環境構築と起動方法
 
