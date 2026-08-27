@@ -30,3 +30,44 @@ func CreateTodo(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"data": todo})
 }
+
+// TODO編集
+func UpdateTodo(c *gin.Context) {
+	id := c.Param("id")
+	var todo models.Todo
+
+	if err := database.DB.First(&todo, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "指定されたTodoが見つかりません。"})
+		return
+	}
+	// 入力の型を定義
+	var input struct {
+		Title  string `json:"title"`
+		Status string `json:"status"`
+		Memo   string `json:"memo"`
+	}
+
+	if err := c.ShouldBindBodyWithJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	// DBでidに紐づくTODOを更新
+	database.DB.Model(&todo).Updates(todo)
+
+	c.JSON(http.StatusOK, gin.H{"data": todo})
+}
+
+// TODO削除
+func DeleteTodo(c *gin.Context) {
+	id := c.Param("id")
+	var todo models.Todo
+
+	if err := database.DB.First(&todo, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "指定されたTodoが見つかりません。"})
+		return
+	}
+	// DBからTodoを削除
+	database.DB.Delete(&todo)
+
+	c.JSON(http.StatusOK, gin.H{"message": "Todoを削除しました"})
+}

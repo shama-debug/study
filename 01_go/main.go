@@ -15,6 +15,8 @@ func main() {
 	// ルーティングの設定(URLとコントローラを紐づける)
 	r.GET("/todos", controllers.GetTodos)
 	r.POST("/todos", controllers.CreateTodo)
+	r.PUT("/todos/:id", controllers.UpdateTodo)
+	r.DELETE("/todos/:id", controllers.DeleteTodo)
 	//サーバーの起動
 	r.Run(":8080")
 }
