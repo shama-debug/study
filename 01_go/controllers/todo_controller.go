@@ -11,7 +11,7 @@ import (
 // TODOリスト一覧
 func GetTodos(c *gin.Context) {
 	var todos []models.Todo
-	database.DB.Find(&todos)
+	database.DB.Where("user_id = ?", currentUserID(c)).Find(&todos)
 	c.JSON(http.StatusOK, gin.H{"data": todos})
 }
 
@@ -25,7 +25,7 @@ func CreateTodo(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	todo := models.Todo{Title: input.Title}
+	todo := models.Todo{Title: input.Title, UserID: currentUserID(c)}
 	database.DB.Create(&todo)
 
 	c.JSON(http.StatusOK, gin.H{"data": todo})
@@ -36,7 +36,7 @@ func UpdateTodo(c *gin.Context) {
 	id := c.Param("id")
 	var todo models.Todo
 
-	if err := database.DB.First(&todo, id).Error; err != nil {
+	if err := database.DB.Where("id = ? AND user_id = ?", id, currentUserID(c)).First(&todo).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "指定されたTodoが見つかりません。"})
 		return
 	}
@@ -52,7 +52,14 @@ func UpdateTodo(c *gin.Context) {
 		return
 	}
 	// DBでidに紐づくTODOを更新
-	database.DB.Model(&todo).Updates(todo)
+	if err := database.DB.Model(&todo).Updates(input).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Todoの更新に失敗しました"})
+		return
+	}
+	if err := database.DB.First(&todo, todo.ID).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Todoの取得に失敗しました"})
+		return
+	}
 
 	c.JSON(http.StatusOK, gin.H{"data": todo})
 }
@@ -62,7 +69,7 @@ func DeleteTodo(c *gin.Context) {
 	id := c.Param("id")
 	var todo models.Todo
 
-	if err := database.DB.First(&todo, id).Error; err != nil {
+	if err := database.DB.Where("id = ? AND user_id = ?", id, currentUserID(c)).First(&todo).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "指定されたTodoが見つかりません。"})
 		return
 	}

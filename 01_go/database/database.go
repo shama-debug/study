@@ -29,7 +29,7 @@ func ConnectDB() {
 
 	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable TimeZone=Asia/Tokyo",
 		host, port, user, password, dbname)
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{TranslateError: true})
 	if err != nil {
 		log.Fatal("データベースの接続に失敗しました:", err)
 	}
@@ -38,7 +38,7 @@ func ConnectDB() {
 	log.Println("データベースの接続に成功しました (環境変数を使用)")
 
 	// マイグレーション
-	err = DB.AutoMigrate(&models.Todo{})
+	err = DB.AutoMigrate(&models.User{}, &models.Todo{})
 	if err != nil {
 		log.Fatal("マイグレーションに失敗しました")
 	}
